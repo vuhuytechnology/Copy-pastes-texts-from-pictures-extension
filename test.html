@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang Thử Nghiệm Tiện Ích Bôi Đen Chữ Trên Ảnh</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+      color: #334155;
+      background-color: #f8fafc;
+    }
+    h1 {
+      color: #0f172a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 12px;
+    }
+    .card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      margin: 20px 0;
+    }
+    .demo-img-wrapper {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .demo-img-wrapper img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 100%;
+      height: 110px;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    textarea:focus {
+      border-color: #2563eb;
+    }
+    .instructions {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Trang Thử Nghiệm: Image Text Selector</h1>
+  
+  <div class="instructions">
+    <p><strong>Cách thử nghiệm:</strong></p>
+    <ol>
+      <li>Rê chuột vào hình ảnh bên dưới, bạn sẽ thấy nút <strong>📝 Bôi đen chữ</strong> hiện ra ở góc phải ảnh (hoặc click chuột phải vào ảnh chọn <em>"📝 Bôi đen chữ trên ảnh này (OCR)"</em>).</li>
+      <li>Sau khi quá trình nhận diện hoàn tất, hãy quét chuột bôi đen các dòng chữ trên ảnh và nhấn <code>Ctrl + C</code>.</li>
+      <li>Dán (<code>Ctrl + V</code>) vào ô nhập liệu bên dưới để kiểm tra kết quả!</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Ảnh thử nghiệm có chứa chữ (Song ngữ Việt - Anh):</h3>
+    <div class="demo-img-wrapper">
+      <img id="test-img" src="sample-quote.png" alt="Ảnh mẫu trích dẫn">
+    </div>
+
+    <h3>Dán văn bản đã copy vào đây để kiểm tra:</h3>
+    <textarea placeholder="Click vào đây và bấm Ctrl + V sau khi copy chữ từ ảnh..."></textarea>
+  </div>
+</body>
+</html>

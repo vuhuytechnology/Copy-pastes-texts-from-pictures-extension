@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cài Đặt Image Text Selector</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="header">
+      <div class="logo-area">
+        <span class="logo-icon">🔍</span>
+        <div>
+          <h1 class="title">Image Text Selector</h1>
+          <p class="subtitle">Bôi đen & Copy chữ trên ảnh</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="setting-group">
+        <label for="languageSelect" class="label">Ngôn ngữ nhận diện chính:</label>
+        <select id="languageSelect" class="select-input">
+          <option value="vie+eng">Tiếng Việt + Tiếng Anh (Mặc định)</option>
+          <option value="vie">Chỉ Tiếng Việt</option>
+          <option value="eng">Chỉ Tiếng Anh</option>
+          <option value="chi_sim+eng">Tiếng Trung (Giản thể) + Anh</option>
+          <option value="jpn+eng">Tiếng Nhật + Anh</option>
+          <option value="kor+eng">Tiếng Hàn + Anh</option>
+          <option value="chi_tra+eng">Tiếng Trung (Phồn thể) + Anh</option>
+          <option value="fra+eng">Tiếng Pháp + Anh</option>
+          <option value="deu+eng">Tiếng Đức + Anh</option>
+          <option value="spa+eng">Tiếng Tây Ban Nha + Anh</option>
+          <option value="rus+eng">Tiếng Nga + Anh</option>
+          <option value="tha+eng">Tiếng Thái + Anh</option>
+        </select>
+        <span id="saveStatus" class="save-status">Đã lưu cài đặt!</span>
+      </div>
+
+      <button id="regionBtn" class="primary-btn">✂️ Chọn vùng để quét chữ <kbd>Alt+Shift+O</kbd></button>
+      <span id="regionStatus" class="region-status"></span>
+
+      <label class="check-row"><input type="checkbox" id="showHoverButton"> Hiện nút "Bôi đen chữ" khi rê chuột vào ảnh</label>
+      <label class="check-row"><input type="checkbox" id="autoCopy"> Tự động copy toàn bộ chữ sau khi quét</label>
+      <p class="hint">Ngôn ngữ ngoài Việt/Anh sẽ được tải về lần đầu dùng (cần mạng), sau đó lưu lại.</p>
+
+      <div class="guide-box">
+        <h3 class="guide-title">💡 Hướng dẫn sử dụng:</h3>
+        <ul class="guide-list">
+          <li><strong>Cách 1:</strong> Rê chuột vào ảnh bất kỳ, bấm vào nút <code>📝 Bôi đen chữ</code> xuất hiện ở góc trên.</li>
+          <li><strong>Cách 2:</strong> Bấm chuột phải vào ảnh trên trang web, chọn <code>📝 Bôi đen chữ trên ảnh này (OCR)</code>.</li>
+          <li><strong>Cách 3:</strong> Bấm <code>Alt+Shift+O</code> rồi kéo chọn vùng bất kỳ (ảnh nền, video, canvas...) để lấy chữ.</li>
+          <li><strong>Thao tác:</strong> Quét chuột bôi đen các dòng chữ rồi bấm <code>Ctrl + C</code> để copy, hoặc bấm nút <code>📋 Copy toàn bộ</code> trên thanh công cụ!</li>
+        </ul>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>Tương thích Chrome & Microsoft Edge</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

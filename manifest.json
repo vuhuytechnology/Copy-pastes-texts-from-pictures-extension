@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Image Text Selector - Bôi Đen & Copy Chữ Trên Ảnh",
+  "version": "1.1.0",
+  "minimum_chrome_version": "109",
+  "description": "Biến mọi chữ trong hình ảnh trên web thành văn bản có thể quét chuột bôi đen và Ctrl+C / Ctrl+V như bình thường. Hỗ trợ quét theo vùng chọn (Alt+Shift+O).",
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "storage",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "ocr-region": {
+      "suggested_key": {
+        "default": "Alt+Shift+O"
+      },
+      "description": "Chọn vùng trên màn hình để quét chữ (OCR)"
+    }
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
