@@ -2,7 +2,7 @@
 
 /* 1. Nút bấm kích hoạt nổi khi hover ảnh */
 .ocr-hover-trigger-btn {
-  position: absolute;
+  position: fixed;
   z-index: 2147483640;
   display: none;
   align-items: center;
@@ -29,7 +29,7 @@
 
 /* 2. Khung loading khi đang xử lý OCR */
 .ocr-loader-container {
-  position: absolute;
+  position: fixed;
   z-index: 2147483641;
   background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(3px);
@@ -65,7 +65,7 @@
 
 /* 3. Lớp phủ vùng chữ trên ảnh (Overlay Container) */
 .ocr-text-overlay-container {
-  position: absolute;
+  position: fixed;
   z-index: 2147483642;
   pointer-events: none; /* click xuyên qua ảnh, chỉ chữ mới bắt chuột */
   box-sizing: border-box;

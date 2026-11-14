@@ -54,23 +54,34 @@
     if (hoverBtn) hoverBtn.style.display = "none";
   }
 
-  document.addEventListener("mouseover", (e) => {
-    if (!settings.showHoverButton) return;
-    const img = e.target;
-    if (img && img.tagName === "IMG" && img.clientWidth >= 120 && img.clientHeight >= 60) {
-      if (activeOverlays.has(img)) return;
-      currentHoverImg = img;
-      ensureHoverButton();
-      positionHoverButton(img);
+  // Tìm ảnh nằm dưới con trỏ, kể cả khi bị lớp phủ khác (lightbox, thanh công cụ...) che bên trên
+  function findImageAt(x, y) {
+    for (const el of document.elementsFromPoint(x, y)) {
+      if (el.classList && [...el.classList].some((c) => c.startsWith("ocr-"))) continue;
+      if (el.tagName === "IMG" && el.clientWidth >= 120 && el.clientHeight >= 60) return el;
     }
-  });
+    return null;
+  }
 
+  let hoverRaf = 0;
   document.addEventListener("mousemove", (e) => {
-    if (!hoverBtn || hoverBtn.style.display === "none" || !currentHoverImg) return;
-    const r = currentHoverImg.getBoundingClientRect();
-    const b = hoverBtn.getBoundingClientRect();
-    const inside = (rc) => e.clientX >= rc.left && e.clientX <= rc.right && e.clientY >= rc.top && e.clientY <= rc.bottom;
-    if (!inside(r) && !inside(b)) hideHoverButton();
+    if (!settings.showHoverButton || hoverRaf) return;
+    const x = e.clientX, y = e.clientY;
+    hoverRaf = requestAnimationFrame(() => {
+      hoverRaf = 0;
+      if (hoverBtn && hoverBtn.style.display !== "none" && currentHoverImg) {
+        const b = hoverBtn.getBoundingClientRect();
+        if (x >= b.left && x <= b.right && y >= b.top && y <= b.bottom) return; // đang trỏ vào nút
+      }
+      const img = findImageAt(x, y);
+      if (img && !activeOverlays.has(img)) {
+        currentHoverImg = img;
+        ensureHoverButton();
+        positionHoverButton(img);
+      } else {
+        hideHoverButton();
+      }
+    });
   }, { passive: true });
 
   function ensureHoverButton() {
@@ -93,8 +104,10 @@
   function positionHoverButton(img) {
     const rect = img.getBoundingClientRect();
     hoverBtn.style.display = "flex";
-    hoverBtn.style.top = `${rect.top + window.scrollY + 8}px`;
-    hoverBtn.style.left = `${rect.right + window.scrollX - hoverBtn.offsetWidth - 8}px`;
+    const top = Math.max(rect.top, 0) + 8;
+    const right = Math.min(rect.right, window.innerWidth);
+    hoverBtn.style.top = `${top}px`;
+    hoverBtn.style.left = `${Math.max(right - hoverBtn.offsetWidth - 8, 0)}px`;
   }
 
   // ---------- OCR ----------
@@ -265,6 +278,8 @@
       layer.appendChild(lineEl);
     });
 
+    ["mousedown", "mouseup", "click", "dblclick", "pointerdown", "pointerup", "touchstart", "touchend"]
+      .forEach((t) => wrapper.addEventListener(t, (ev) => ev.stopPropagation()));
     document.body.appendChild(wrapper);
 
     // Co giãn ngang từng từ cho khít khung chữ gốc => vùng bôi đen khớp chữ trong ảnh
@@ -283,8 +298,8 @@
       raf = 0;
       if (!document.body.contains(img)) { removeOverlay(img); return; }
       const r = img.getBoundingClientRect();
-      wrapper.style.top = `${r.top + window.scrollY}px`;
-      wrapper.style.left = `${r.left + window.scrollX}px`;
+      wrapper.style.top = `${r.top}px`;
+      wrapper.style.left = `${r.left}px`;
       wrapper.style.width = `${r.width}px`;
       wrapper.style.height = `${r.height}px`;
       layer.style.transform = `scale(${r.width / naturalW}, ${r.height / naturalH})`;
@@ -452,8 +467,8 @@
   function showLoading(rect, initialText, fixed = false) {
     const box = document.createElement("div");
     box.className = "ocr-loader-container";
-    if (fixed) box.style.position = "fixed";
-    const offX = fixed ? 0 : window.scrollX, offY = fixed ? 0 : window.scrollY;
+    box.style.position = "fixed";
+    const offX = 0, offY = 0;
     box.style.width = `${rect.width}px`;
     box.style.height = `${rect.height}px`;
     box.style.top = `${rect.top + offY}px`;
