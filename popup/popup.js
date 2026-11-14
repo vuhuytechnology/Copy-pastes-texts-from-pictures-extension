@@ -1,9 +1,10 @@
 // popup.js - Cài đặt OCR và nút quét theo vùng
 
-const DEFAULTS = { ocrLanguage: "vie+eng", showHoverButton: true, autoCopy: false };
+const DEFAULTS = { ocrLanguage: "vie+eng", ocrQuality: "fast", showHoverButton: true, autoCopy: false };
 
 document.addEventListener("DOMContentLoaded", () => {
   const languageSelect = document.getElementById("languageSelect");
+  const qualitySelect = document.getElementById("qualitySelect");
   const showHover = document.getElementById("showHoverButton");
   const autoCopy = document.getElementById("autoCopy");
   const saveStatus = document.getElementById("saveStatus");
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   chrome.storage.sync.get(DEFAULTS, (items) => {
     languageSelect.value = items.ocrLanguage;
+    qualitySelect.value = items.ocrQuality;
     showHover.checked = items.showHoverButton;
     autoCopy.checked = items.autoCopy;
   });
@@ -23,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const save = (obj) => chrome.storage.sync.set(obj, flashSaved);
 
   languageSelect.addEventListener("change", () => save({ ocrLanguage: languageSelect.value }));
+  qualitySelect.addEventListener("change", () => save({ ocrQuality: qualitySelect.value }));
   showHover.addEventListener("change", () => save({ showHoverButton: showHover.checked }));
   autoCopy.addEventListener("change", () => save({ autoCopy: autoCopy.checked }));
 

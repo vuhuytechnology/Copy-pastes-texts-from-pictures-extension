@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Image Text Selector - Bôi Đen & Copy Chữ Trên Ảnh",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "minimum_chrome_version": "109",
   "description": "Biến mọi chữ trong hình ảnh trên web thành văn bản có thể quét chuột bôi đen và Ctrl+C / Ctrl+V như bình thường. Hỗ trợ quét theo vùng chọn (Alt+Shift+O).",
   "permissions": [
@@ -13,6 +13,9 @@
   "host_permissions": [
     "<all_urls>"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
   "background": {
     "service_worker": "background.js"
   },

@@ -66,7 +66,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             action: "OCR_RECOGNIZE",
             jobId: request.jobId,
             image: request.image,
-            lang: request.lang
+            lang: request.lang,
+            quality: request.quality
           });
           sendResponse(res || { success: false, error: "Engine OCR không phản hồi." });
         } catch (err) {
@@ -76,6 +77,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
       })();
       return true;
+
+    case "OCR_PREWARM":
+      ensureOffscreen()
+        .then(() => chrome.runtime.sendMessage({
+          target: "offscreen",
+          action: "OCR_PREWARM",
+          lang: request.lang,
+          quality: request.quality
+        }))
+        .catch(() => {});
+      return;
 
     case "OCR_PROGRESS": {
       const tabId = jobTabs.get(request.jobId);

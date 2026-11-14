@@ -8,15 +8,27 @@ Tiện ích mở rộng (Browser Extension) chuẩn **Manifest V3** cho cả **G
 
 ```
 image-text-select-extension/
-├── manifest.json              # Manifest V3 (v1.1.0)
+├── manifest.json              # Manifest V3 (v1.2.0)
 ├── background.js              # Service Worker: menu chuột phải, phím tắt, chụp màn hình, điều phối OCR
 ├── content.js                 # Chạy trên web: nút hover, lớp chữ bôi đen, chọn vùng, bảng kết quả
 ├── styles.css
 ├── offscreen/                 # Trang ẩn chạy Tesseract OCR (Web Worker hoạt động ổn định, không bị CSP của web chặn)
-├── libs/                      # Tesseract.js v5 + worker + core WASM + dữ liệu tiếng Việt/Anh (chạy OFFLINE)
+├── libs/                      # Tesseract.js v7 + worker + core WASM + dữ liệu tiếng Việt/Anh (chạy OFFLINE)
 ├── popup/                     # Cài đặt: ngôn ngữ, nút hover, tự động copy, nút chọn vùng
 └── icons/, test.html, sample-quote.png
 ```
+
+## ⚡ Nâng cấp v1.2.0 – Tốc độ
+
+Đo trên Chrome thật (ảnh 1600×900, engine đã khởi động sẵn): **~0,85 giây** ở chế độ Nhanh, ~1,75 giây ở chế độ Chính xác. Bản 1.1.0 bị treo ở bước "Đang khởi tạo".
+
+- **Sửa lỗi treo:** thêm `'wasm-unsafe-eval'` vào CSP của extension (Manifest V3 mặc định chặn WebAssembly).
+- **Tesseract.js v7** (có bản relaxed-SIMD) + bộ dữ liệu **"fast"** cho tiếng Việt/Anh; có thể đổi sang "Chính xác hơn" trong popup.
+- **Khởi động sẵn engine** khi rê chuột vào ảnh; worker được giữ 5 phút giữa các lần quét.
+- **Nạp ảnh dạng PGM** thay cho `canvas.toBlob()` (bị trình duyệt trì hoãn ~1 giây trong trang ẩn).
+- **Lượt quét phụ trên ảnh thu nhỏ** để bắt tiêu đề cỡ chữ rất lớn.
+- **Nhớ kết quả** theo từng ảnh: mở lại là có ngay.
+- **Ctrl+C luôn có dấu cách và xuống dòng** đúng theo từng dòng chữ.
 
 ## ✨ Nâng cấp v1.1.0
 

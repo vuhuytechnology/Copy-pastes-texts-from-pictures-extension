@@ -7,7 +7,9 @@
   let lastRightClickedElement = null;
   const activeOverlays = new Map(); // Map<img, { remove() }>
   const progressHandlers = new Map(); // jobId -> callback
-  let settings = { ocrLanguage: "vie+eng", showHoverButton: true, autoCopy: false };
+  let settings = { ocrLanguage: "vie+eng", ocrQuality: "fast", showHoverButton: true, autoCopy: false };
+  const resultCache = new Map(); // "src|lang|quality" -> kết quả OCR (mở lại ảnh là có ngay)
+  let lastPrewarm = 0;
   let jobCounter = 0;
 
   // ---------- Cài đặt ----------
@@ -17,6 +19,18 @@
     for (const [k, v] of Object.entries(changes)) settings[k] = v.newValue;
     if (!settings.showHoverButton) hideHoverButton();
   });
+
+  // Khởi động sẵn engine OCR khi người dùng sắp dùng tới => bấm quét là chạy ngay
+  function prewarm() {
+    const now = Date.now();
+    if (now - lastPrewarm < 4 * 60 * 1000) return;
+    lastPrewarm = now;
+    chrome.runtime.sendMessage({
+      action: "OCR_PREWARM",
+      lang: settings.ocrLanguage || "vie+eng",
+      quality: settings.ocrQuality || "fast"
+    }).catch(() => {});
+  }
 
   document.addEventListener("contextmenu", (e) => { lastRightClickedElement = e.target; }, true);
 
@@ -78,6 +92,7 @@
         currentHoverImg = img;
         ensureHoverButton();
         positionHoverButton(img);
+        prewarm();
       } else {
         hideHoverButton();
       }
@@ -133,9 +148,12 @@
         action: "OCR_RECOGNIZE",
         jobId,
         image: imageDataUrl,
-        lang: settings.ocrLanguage || "vie+eng"
+        lang: settings.ocrLanguage || "vie+eng",
+        quality: settings.ocrQuality || "fast"
       });
       if (!res || !res.success) throw new Error(res?.error || "Engine OCR không phản hồi.");
+      lastPrewarm = Date.now();
+      console.debug("[Image Text Selector] OCR timings (ms):", res.result.timings);
       return res.result;
     } finally {
       progressHandlers.delete(jobId);
@@ -169,9 +187,17 @@
     }
     const loader = showLoading(img.getBoundingClientRect(), "Đang nạp ảnh...");
     try {
-      const dataUrl = await getImageDataUrl(img);
-      loader.updateStatus("Đang khởi động engine OCR...");
-      const result = await runOCR(dataUrl, loader.updateStatus);
+      const cacheKey = `${img.currentSrc || img.src}|${settings.ocrLanguage}|${settings.ocrQuality}`;
+      let result = resultCache.get(cacheKey);
+      if (!result) {
+        const dataUrl = await getImageDataUrl(img);
+        loader.updateStatus("Đang khởi động engine OCR...");
+        result = await runOCR(dataUrl, loader.updateStatus);
+        if (cacheKey.length < 2000) {
+          if (resultCache.size >= 30) resultCache.delete(resultCache.keys().next().value);
+          resultCache.set(cacheKey, result);
+        }
+      }
       loader.remove();
 
       if (!result.lines.length) {
@@ -339,6 +365,7 @@
   function startRegionSelect() {
     if (regionActive) return;
     regionActive = true;
+    prewarm();
 
     const mask = document.createElement("div");
     mask.className = "ocr-region-mask";
@@ -392,6 +419,26 @@
       await ocrRegion(rect);
     });
   }
+
+  // Ctrl+C trên lớp chữ: tự ghép text theo từ/dòng để luôn có dấu cách và xuống dòng chuẩn
+  document.addEventListener("copy", (e) => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+    const anchorEl = sel.anchorNode && (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement);
+    const layer = anchorEl && anchorEl.closest && anchorEl.closest(".ocr-text-layer");
+    if (!layer) return;
+    const lines = [];
+    layer.querySelectorAll(".ocr-text-line").forEach((lineEl) => {
+      const words = [];
+      lineEl.querySelectorAll(".ocr-text-word").forEach((w) => {
+        if (sel.containsNode(w, true)) words.push(w.textContent);
+      });
+      if (words.length) lines.push(words.join(" "));
+    });
+    if (!lines.length) return;
+    e.clipboardData.setData("text/plain", lines.join("\n"));
+    e.preventDefault();
+  }, true);
 
   async function ocrRegion(rect) {
     // chờ trình duyệt vẽ lại để lớp phủ chọn vùng biến mất khỏi ảnh chụp
