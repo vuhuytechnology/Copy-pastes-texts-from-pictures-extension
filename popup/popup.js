@@ -1,4 +1,4 @@
-// popup.js - Cài đặt OCR và nút quét theo vùng
+// popup.js - OCR settings and region capture trigger
 
 const DEFAULTS = { ocrLanguage: "vie+eng", ocrQuality: "fast", showHoverButton: true, autoCopy: false };
 
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
       await chrome.tabs.sendMessage(tab.id, { action: "START_REGION_SELECT" });
       window.close();
     } catch (e) {
-      regionStatus.textContent = "Không dùng được trên trang này. Hãy tải lại trang (F5) rồi thử lại.";
+      regionStatus.textContent = "Cannot run on this page. Reload the tab (F5) and try again.";
     }
   });
 });

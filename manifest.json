@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Image Text Selector - Bôi Đen & Copy Chữ Trên Ảnh",
+  "name": "Image Text Selector — Select & Copy Text from Images",
   "version": "1.2.0",
   "minimum_chrome_version": "109",
-  "description": "Biến mọi chữ trong hình ảnh trên web thành văn bản có thể quét chuột bôi đen và Ctrl+C / Ctrl+V như bình thường. Hỗ trợ quét theo vùng chọn (Alt+Shift+O).",
+  "description": "Turn text inside any web image into selectable, copyable text (Ctrl+C / Ctrl+V) with offline OCR and region capture (Alt+Shift+O).",
   "permissions": [
     "contextMenus",
     "activeTab",
@@ -24,7 +24,7 @@
       "suggested_key": {
         "default": "Alt+Shift+O"
       },
-      "description": "Chọn vùng trên màn hình để quét chữ (OCR)"
+      "description": "Select a screen region to extract text (OCR)"
     }
   },
   "action": {

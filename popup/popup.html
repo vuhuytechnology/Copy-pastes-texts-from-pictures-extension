@@ -1,68 +1,102 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cài Đặt Image Text Selector</title>
+  <title>Image Text Selector — Settings</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="popup-container">
     <header class="header">
       <div class="logo-area">
-        <span class="logo-icon">🔍</span>
-        <div>
-          <h1 class="title">Image Text Selector</h1>
-          <p class="subtitle">Bôi đen & Copy chữ trên ảnh</p>
+        <div class="logo-badge" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7V4h3"/>
+            <path d="M20 7V4h-3"/>
+            <path d="M4 17v3h3"/>
+            <path d="M20 17v3h-3"/>
+            <path d="M7 9h10"/>
+            <path d="M12 9v7"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="title-row">
+            <h1 class="title">Image Text Selector</h1>
+            <span class="version-pill">v1.2</span>
+          </div>
+          <p class="subtitle">Select &amp; Copy Text from Images</p>
         </div>
       </div>
     </header>
 
     <main class="content">
-      <div class="setting-group">
-        <label for="languageSelect" class="label">Ngôn ngữ nhận diện chính:</label>
-        <select id="languageSelect" class="select-input">
-          <option value="vie+eng">Tiếng Việt + Tiếng Anh (Mặc định)</option>
-          <option value="vie">Chỉ Tiếng Việt</option>
-          <option value="eng">Chỉ Tiếng Anh</option>
-          <option value="chi_sim+eng">Tiếng Trung (Giản thể) + Anh</option>
-          <option value="jpn+eng">Tiếng Nhật + Anh</option>
-          <option value="kor+eng">Tiếng Hàn + Anh</option>
-          <option value="chi_tra+eng">Tiếng Trung (Phồn thể) + Anh</option>
-          <option value="fra+eng">Tiếng Pháp + Anh</option>
-          <option value="deu+eng">Tiếng Đức + Anh</option>
-          <option value="spa+eng">Tiếng Tây Ban Nha + Anh</option>
-          <option value="rus+eng">Tiếng Nga + Anh</option>
-          <option value="tha+eng">Tiếng Thái + Anh</option>
-        </select>
-        <label for="qualitySelect" class="label" style="margin-top:10px">Chế độ quét:</label>
-        <select id="qualitySelect" class="select-input">
-          <option value="fast">⚡ Nhanh (khuyên dùng)</option>
-          <option value="best">🎯 Chính xác hơn (chậm gấp ~2 lần)</option>
-        </select>
-        <span id="saveStatus" class="save-status">Đã lưu cài đặt!</span>
-      </div>
+      <section class="card">
+        <div class="setting-group">
+          <label for="languageSelect" class="label">Recognition Language</label>
+          <select id="languageSelect" class="select-input">
+            <option value="vie+eng">Vietnamese + English (Default)</option>
+            <option value="vie">Vietnamese Only</option>
+            <option value="eng">English Only</option>
+            <option value="chi_sim+eng">Chinese (Simplified) + English</option>
+            <option value="jpn+eng">Japanese + English</option>
+            <option value="kor+eng">Korean + English</option>
+            <option value="chi_tra+eng">Chinese (Traditional) + English</option>
+            <option value="fra+eng">French + English</option>
+            <option value="deu+eng">German + English</option>
+            <option value="spa+eng">Spanish + English</option>
+            <option value="rus+eng">Russian + English</option>
+            <option value="tha+eng">Thai + English</option>
+          </select>
 
-      <button id="regionBtn" class="primary-btn">✂️ Chọn vùng để quét chữ <kbd>Alt+Shift+O</kbd></button>
+          <label for="qualitySelect" class="label label-spaced">Scan Mode</label>
+          <select id="qualitySelect" class="select-input">
+            <option value="fast">Fast (Recommended)</option>
+            <option value="best">High Accuracy (~2x slower)</option>
+          </select>
+
+          <span id="saveStatus" class="save-status">Settings saved</span>
+        </div>
+      </section>
+
+      <button id="regionBtn" class="primary-btn" type="button">
+        <span class="btn-label">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2v14a2 2 0 0 0 2 2h14"/>
+            <path d="M18 22V8a2 2 0 0 0-2-2H2"/>
+          </svg>
+          Scan Screen Region
+        </span>
+        <kbd>Alt+Shift+O</kbd>
+      </button>
       <span id="regionStatus" class="region-status"></span>
 
-      <label class="check-row"><input type="checkbox" id="showHoverButton"> Hiện nút "Bôi đen chữ" khi rê chuột vào ảnh</label>
-      <label class="check-row"><input type="checkbox" id="autoCopy"> Tự động copy toàn bộ chữ sau khi quét</label>
-      <p class="hint">Ngôn ngữ ngoài Việt/Anh sẽ được tải về lần đầu dùng (cần mạng), sau đó lưu lại.</p>
+      <section class="toggles-card">
+        <label class="check-row">
+          <input type="checkbox" id="showHoverButton">
+          <span>Show "Select Text" button on image hover</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="autoCopy">
+          <span>Auto-copy extracted text after scan</span>
+        </label>
+      </section>
 
-      <div class="guide-box">
-        <h3 class="guide-title">💡 Hướng dẫn sử dụng:</h3>
+      <p class="hint">Languages other than English/Vietnamese are downloaded on first use (requires internet) and cached locally.</p>
+
+      <section class="guide-box">
+        <h3 class="guide-title">Quick Guide</h3>
         <ul class="guide-list">
-          <li><strong>Cách 1:</strong> Rê chuột vào ảnh bất kỳ, bấm vào nút <code>📝 Bôi đen chữ</code> xuất hiện ở góc trên.</li>
-          <li><strong>Cách 2:</strong> Bấm chuột phải vào ảnh trên trang web, chọn <code>📝 Bôi đen chữ trên ảnh này (OCR)</code>.</li>
-          <li><strong>Cách 3:</strong> Bấm <code>Alt+Shift+O</code> rồi kéo chọn vùng bất kỳ (ảnh nền, video, canvas...) để lấy chữ.</li>
-          <li><strong>Thao tác:</strong> Quét chuột bôi đen các dòng chữ rồi bấm <code>Ctrl + C</code> để copy, hoặc bấm nút <code>📋 Copy toàn bộ</code> trên thanh công cụ!</li>
+          <li><strong>Hover:</strong> Move over any image and click <code>Select Text</code> at the top-right corner.</li>
+          <li><strong>Right-click:</strong> Right-click an image and choose <code>Select text on this image (OCR)</code>.</li>
+          <li><strong>Region:</strong> Press <code>Alt+Shift+O</code> and drag to capture text from videos, canvas, or backgrounds.</li>
+          <li><strong>Copy:</strong> Highlight text directly on the image and press <code>Ctrl+C</code>, or click <code>Copy All</code>.</li>
         </ul>
-      </div>
+      </section>
     </main>
 
     <footer class="footer">
-      <span>Tương thích Chrome & Microsoft Edge</span>
+      <span>Offline OCR Engine · Chrome &amp; Edge</span>
     </footer>
   </div>
 

@@ -46,7 +46,7 @@
             .find((img) => img.src === request.srcUrl || img.currentSrc === request.srcUrl);
         }
         if (targetImg) processImageOCR(targetImg);
-        else showToast("Không tìm thấy ảnh tương ứng trên trang để quét chữ.", "warning");
+        else showToast("Could not locate the target image on this page.", "warning");
         break;
       }
       case "START_REGION_SELECT":
@@ -103,8 +103,8 @@
     if (hoverBtn) return;
     hoverBtn = document.createElement("button");
     hoverBtn.className = "ocr-hover-trigger-btn";
-    hoverBtn.textContent = "📝 Bôi đen chữ";
-    hoverBtn.title = "Bật chế độ bôi đen và copy chữ trên ảnh này";
+    hoverBtn.textContent = "Select Text";
+    hoverBtn.title = "Enable text selection & copy on this image";
     document.body.appendChild(hoverBtn);
     hoverBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -127,20 +127,20 @@
 
   // ---------- OCR ----------
   const STATUS_TEXT = {
-    "loading": "Đang khởi động engine OCR...",
-    "loading tesseract core": "Đang nạp engine OCR...",
-    "initializing tesseract": "Đang khởi tạo...",
-    "loading language traineddata": "Đang nạp dữ liệu ngôn ngữ...",
-    "loaded language traineddata": "Đang nạp dữ liệu ngôn ngữ...",
-    "initializing api": "Đang khởi tạo...",
-    "initialized api": "Đang khởi tạo..."
+    "loading": "Starting OCR engine...",
+    "loading tesseract core": "Loading OCR core...",
+    "initializing tesseract": "Initializing...",
+    "loading language traineddata": "Loading language data...",
+    "loaded language traineddata": "Loading language data...",
+    "initializing api": "Initializing...",
+    "initialized api": "Initializing..."
   };
 
   async function runOCR(imageDataUrl, onStatus) {
     const jobId = `job-${Date.now()}-${++jobCounter}`;
     progressHandlers.set(jobId, (p) => {
       if (!onStatus) return;
-      if (p.status === "recognizing text") onStatus(`Đang nhận diện: ${Math.round((p.progress || 0) * 100)}%`);
+      if (p.status === "recognizing text") onStatus(`Recognizing: ${Math.round((p.progress || 0) * 100)}%`);
       else if (STATUS_TEXT[p.status]) onStatus(STATUS_TEXT[p.status]);
     });
     try {
@@ -151,7 +151,7 @@
         lang: settings.ocrLanguage || "vie+eng",
         quality: settings.ocrQuality || "fast"
       });
-      if (!res || !res.success) throw new Error(res?.error || "Engine OCR không phản hồi.");
+      if (!res || !res.success) throw new Error(res?.error || "OCR engine did not respond.");
       lastPrewarm = Date.now();
       console.debug("[Image Text Selector] OCR timings (ms):", res.result.timings);
       return res.result;
@@ -177,21 +177,21 @@
     } catch (e) { /* tainted -> fetch qua background */ }
     const response = await chrome.runtime.sendMessage({ action: "FETCH_IMAGE_AS_BASE64", url: src });
     if (response && response.success) return response.base64;
-    throw new Error("Không tải được dữ liệu ảnh" + (response?.error ? `: ${response.error}` : "."));
+    throw new Error("Failed to load image data" + (response?.error ? `: ${response.error}` : "."));
   }
 
   async function processImageOCR(img) {
     if (activeOverlays.has(img)) {
-      showToast("Lớp bôi đen chữ trên ảnh này đã được bật rồi!", "info");
+      showToast("Text overlay is already active on this image.", "info");
       return;
     }
-    const loader = showLoading(img.getBoundingClientRect(), "Đang nạp ảnh...");
+    const loader = showLoading(img.getBoundingClientRect(), "Loading image...");
     try {
       const cacheKey = `${img.currentSrc || img.src}|${settings.ocrLanguage}|${settings.ocrQuality}`;
       let result = resultCache.get(cacheKey);
       if (!result) {
         const dataUrl = await getImageDataUrl(img);
-        loader.updateStatus("Đang khởi động engine OCR...");
+        loader.updateStatus("Starting OCR engine...");
         result = await runOCR(dataUrl, loader.updateStatus);
         if (cacheKey.length < 2000) {
           if (resultCache.size >= 30) resultCache.delete(resultCache.keys().next().value);
@@ -201,21 +201,21 @@
       loader.remove();
 
       if (!result.lines.length) {
-        showToast("Không tìm thấy văn bản nào trong ảnh này.", "warning");
+        showToast("No text detected in this image.", "warning");
         return;
       }
       renderTextOverlay(img, result);
       const wordCount = result.lines.reduce((n, l) => n + l.words.length, 0);
       if (settings.autoCopy) {
         await copyText(result.text);
-        showToast(`Đã nhận diện ${wordCount} từ và tự động copy vào clipboard.`, "success");
+        showToast(`Detected ${wordCount} words and copied to clipboard.`, "success");
       } else {
-        showToast(`Đã nhận diện ${wordCount} từ. Quét chuột bôi đen để copy!`, "success");
+        showToast(`Detected ${wordCount} words. Highlight text to copy!`, "success");
       }
     } catch (error) {
-      console.error("Lỗi OCR:", error);
+      console.error("OCR error:", error);
       loader.remove();
-      showToast("Lỗi khi quét ảnh: " + error.message, "error");
+      showToast("OCR scan failed: " + error.message, "error");
     }
   }
 
@@ -254,15 +254,15 @@
     const toolbar = document.createElement("div");
     toolbar.className = "ocr-overlay-toolbar";
     toolbar.innerHTML = `
-      <button class="ocr-tb-btn ocr-copy-all" title="Sao chép toàn bộ văn bản trong ảnh">📋 Copy toàn bộ</button>
-      <button class="ocr-tb-btn ocr-toggle-visible" title="Chuyển chế độ chữ ẩn / hiện rõ">👁️ Hiện chữ</button>
-      <button class="ocr-tb-btn ocr-close-btn" title="Đóng lớp bôi đen">✕</button>
+      <button class="ocr-tb-btn ocr-copy-all" title="Copy all detected text">Copy All</button>
+      <button class="ocr-tb-btn ocr-toggle-visible" title="Toggle visible text overlay">Show Text</button>
+      <button class="ocr-tb-btn ocr-close-btn" title="Close overlay">✕</button>
     `;
     wrapper.appendChild(toolbar);
 
     toolbar.querySelector(".ocr-copy-all").addEventListener("click", async () => {
       const ok = await copyText(ocrData.text || "");
-      showToast(ok ? "Đã copy toàn bộ văn bản vào bộ nhớ tạm!" : "Không thể copy vào clipboard.", ok ? "success" : "error");
+      showToast(ok ? "Copied all text to clipboard!" : "Failed to copy to clipboard.", ok ? "success" : "error");
     });
 
     let visible = false;
@@ -270,7 +270,7 @@
     toggleBtn.addEventListener("click", () => {
       visible = !visible;
       wrapper.classList.toggle("mode-visible-text", visible);
-      toggleBtn.textContent = visible ? "🕶️ Chữ trong suốt" : "👁️ Hiện chữ";
+      toggleBtn.textContent = visible ? "Hide Text" : "Show Text";
     });
 
     toolbar.querySelector(".ocr-close-btn").addEventListener("click", () => removeOverlay(img));
@@ -374,7 +374,7 @@
     box.style.display = "none";
     const hint = document.createElement("div");
     hint.className = "ocr-region-hint";
-    hint.textContent = "Kéo chuột để chọn vùng chứa chữ · Esc để huỷ";
+    hint.textContent = "Drag to select a text region · Esc to cancel";
     mask.append(box, hint);
     document.body.appendChild(mask);
 
@@ -413,7 +413,7 @@
       };
       cleanup();
       if (rect.w < 12 || rect.h < 12) {
-        showToast("Vùng chọn quá nhỏ.", "warning");
+        showToast("Selected region is too small.", "warning");
         return;
       }
       await ocrRegion(rect);
@@ -443,10 +443,10 @@
   async function ocrRegion(rect) {
     // chờ trình duyệt vẽ lại để lớp phủ chọn vùng biến mất khỏi ảnh chụp
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 60)));
-    const loader = showLoading({ left: rect.x, top: rect.y, width: rect.w, height: rect.h }, "Đang chụp vùng chọn...", true);
+    const loader = showLoading({ left: rect.x, top: rect.y, width: rect.w, height: rect.h }, "Capturing region...", true);
     try {
       const cap = await chrome.runtime.sendMessage({ action: "CAPTURE_VISIBLE_TAB" });
-      if (!cap || !cap.success) throw new Error(cap?.error || "Không chụp được màn hình.");
+      if (!cap || !cap.success) throw new Error(cap?.error || "Failed to capture visible tab.");
 
       const full = await loadImage(cap.dataUrl);
       const sx = full.naturalWidth / window.innerWidth;
@@ -460,15 +460,15 @@
       loader.remove();
 
       if (!result.text.trim()) {
-        showToast("Không tìm thấy văn bản trong vùng đã chọn.", "warning");
+        showToast("No text found in the selected region.", "warning");
         return;
       }
       showResultPanel(rect, result.text);
       if (settings.autoCopy) await copyText(result.text);
     } catch (err) {
-      console.error("Lỗi OCR vùng chọn:", err);
+      console.error("Region OCR error:", err);
       loader.remove();
-      showToast("Lỗi khi quét vùng chọn: " + err.message, "error");
+      showToast("Region OCR failed: " + err.message, "error");
     }
   }
 
@@ -476,7 +476,7 @@
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error("Không đọc được ảnh chụp màn hình."));
+      img.onerror = () => reject(new Error("Failed to decode captured screenshot."));
       img.src = src;
     });
   }
@@ -487,8 +487,8 @@
     panel.innerHTML = `
       <textarea class="ocr-result-text" spellcheck="false"></textarea>
       <div class="ocr-result-actions">
-        <button class="ocr-tb-btn ocr-copy-all">📋 Copy</button>
-        <button class="ocr-tb-btn ocr-close-btn">✕ Đóng</button>
+        <button class="ocr-tb-btn ocr-copy-all">Copy</button>
+        <button class="ocr-tb-btn ocr-close-btn">✕ Close</button>
       </div>`;
     const ta = panel.querySelector("textarea");
     ta.value = text;
@@ -503,7 +503,7 @@
 
     panel.querySelector(".ocr-copy-all").addEventListener("click", async () => {
       const ok = await copyText(ta.value);
-      showToast(ok ? "Đã copy văn bản!" : "Không thể copy vào clipboard.", ok ? "success" : "error");
+      showToast(ok ? "Copied to clipboard!" : "Failed to copy to clipboard.", ok ? "success" : "error");
     });
     panel.querySelector(".ocr-close-btn").addEventListener("click", () => panel.remove());
     ta.focus();

@@ -75,7 +75,7 @@ function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Không đọc được dữ liệu ảnh."));
+    img.onerror = () => reject(new Error("Failed to decode image data."));
     img.src = src;
   });
 }

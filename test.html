@@ -1,84 +1,120 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trang Thử Nghiệm Tiện Ích Bôi Đen Chữ Trên Ảnh</title>
+  <title>Test Page — Image Text Selector</title>
   <style>
+    :root {
+      --bg-void: #070709;
+      --bg-surface: #101014;
+      --crimson: #dc2626;
+      --crimson-border: rgba(220, 38, 38, 0.35);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1aa;
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      max-width: 800px;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 820px;
       margin: 40px auto;
       padding: 0 20px;
       line-height: 1.6;
-      color: #334155;
-      background-color: #f8fafc;
+      color: var(--text-primary);
+      background-color: var(--bg-void);
+      background-image: radial-gradient(circle at 50% 0%, rgba(185, 28, 28, 0.18), transparent 55%);
     }
     h1 {
-      color: #0f172a;
-      border-bottom: 2px solid #e2e8f0;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--crimson-border);
       padding-bottom: 12px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+    h3 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #f87171;
+      margin-bottom: 12px;
     }
     .card {
-      background: #ffffff;
+      background: var(--bg-surface);
       padding: 24px;
       border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       margin: 20px 0;
     }
     .demo-img-wrapper {
-      margin: 20px 0;
+      margin: 16px 0 24px;
       text-align: center;
     }
     .demo-img-wrapper img {
       max-width: 100%;
       height: auto;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: 1px solid var(--crimson-border);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
     }
     textarea {
       width: 100%;
-      height: 110px;
+      height: 120px;
       padding: 12px;
-      border: 1px solid #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
-      font-family: monospace;
-      font-size: 14px;
+      background: #060608;
+      color: var(--text-primary);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13.5px;
       box-sizing: border-box;
       outline: none;
     }
     textarea:focus {
-      border-color: #2563eb;
+      border-color: var(--crimson);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
     }
     .instructions {
-      background: #eff6ff;
-      border-left: 4px solid #3b82f6;
-      padding: 12px 16px;
-      border-radius: 4px;
+      background: var(--bg-surface);
+      border: 1px solid var(--crimson-border);
+      border-left: 4px solid var(--crimson);
+      padding: 14px 18px;
+      border-radius: 8px;
       font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .instructions strong {
+      color: var(--text-primary);
+    }
+    .instructions code {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      color: #fecaca;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12.5px;
     }
   </style>
 </head>
 <body>
-  <h1>🧪 Trang Thử Nghiệm: Image Text Selector</h1>
-  
+  <h1>Image Text Selector — Test Playground</h1>
+
   <div class="instructions">
-    <p><strong>Cách thử nghiệm:</strong></p>
+    <p><strong>How to test:</strong></p>
     <ol>
-      <li>Rê chuột vào hình ảnh bên dưới, bạn sẽ thấy nút <strong>📝 Bôi đen chữ</strong> hiện ra ở góc phải ảnh (hoặc click chuột phải vào ảnh chọn <em>"📝 Bôi đen chữ trên ảnh này (OCR)"</em>).</li>
-      <li>Sau khi quá trình nhận diện hoàn tất, hãy quét chuột bôi đen các dòng chữ trên ảnh và nhấn <code>Ctrl + C</code>.</li>
-      <li>Dán (<code>Ctrl + V</code>) vào ô nhập liệu bên dưới để kiểm tra kết quả!</li>
+      <li>Hover over the image below and click <strong>Select Text</strong> in the top-right corner (or right-click the image and choose <em>"Select text on this image (OCR)"</em>).</li>
+      <li>Once recognition finishes, highlight text directly on the image and press <code>Ctrl + C</code> (or use <code>Copy All</code>).</li>
+      <li>Paste (<code>Ctrl + V</code>) into the text box below to verify the extracted output.</li>
     </ol>
   </div>
 
   <div class="card">
-    <h3>Ảnh thử nghiệm có chứa chữ (Song ngữ Việt - Anh):</h3>
+    <h3>Sample Image (Bilingual Vietnamese / English)</h3>
     <div class="demo-img-wrapper">
-      <img id="test-img" src="sample-quote.png" alt="Ảnh mẫu trích dẫn">
+      <img id="test-img" src="sample-quote.png" alt="Sample quote image">
     </div>
 
-    <h3>Dán văn bản đã copy vào đây để kiểm tra:</h3>
-    <textarea placeholder="Click vào đây và bấm Ctrl + V sau khi copy chữ từ ảnh..."></textarea>
+    <h3>Paste Extracted Text Here</h3>
+    <textarea placeholder="Click here and press Ctrl + V after copying text from the image..."></textarea>
   </div>
 </body>
 </html>

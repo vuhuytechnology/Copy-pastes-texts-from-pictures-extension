@@ -7,12 +7,12 @@ let creatingOffscreen = null;
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "ocr-image-selection",
-    title: "📝 Bôi đen chữ trên ảnh này (OCR)",
+    title: "Select text on this image (OCR)",
     contexts: ["image"]
   });
   chrome.contextMenus.create({
     id: "ocr-region-select",
-    title: "✂️ Quét chữ theo vùng chọn trên trang",
+    title: "Scan text from selected region",
     contexts: ["page", "selection", "video"]
   });
 });
@@ -40,7 +40,7 @@ async function ensureOffscreen() {
     creatingOffscreen = chrome.offscreen.createDocument({
       url: OFFSCREEN_URL,
       reasons: ["WORKERS"],
-      justification: "Chạy Tesseract OCR trong Web Worker"
+      justification: "Run Tesseract OCR in a Web Worker"
     }).finally(() => { creatingOffscreen = null; });
   }
   await creatingOffscreen;
@@ -69,7 +69,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             lang: request.lang,
             quality: request.quality
           });
-          sendResponse(res || { success: false, error: "Engine OCR không phản hồi." });
+          sendResponse(res || { success: false, error: "OCR engine did not respond." });
         } catch (err) {
           sendResponse({ success: false, error: err.message });
         } finally {
@@ -113,7 +113,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 /** Tải ảnh qua background (vượt CORS) và trả về Data URL */
 async function fetchImageAsBase64(url) {
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`Tải ảnh thất bại: HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`Failed to fetch image: HTTP ${response.status}`);
   const blob = await response.blob();
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
