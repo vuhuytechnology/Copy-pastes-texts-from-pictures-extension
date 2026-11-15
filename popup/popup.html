@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Text Selector — Settings</title>
+  <title>Image Text Selector — v2.0</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -23,21 +23,29 @@
         <div class="brand-text">
           <div class="title-row">
             <h1 class="title">Image Text Selector</h1>
-            <span class="version-pill">v1.2</span>
+            <span class="version-pill">v2.0</span>
           </div>
-          <p class="subtitle">Select &amp; Copy Text from Images</p>
+          <p class="subtitle">Select, Clean, Translate &amp; Export</p>
         </div>
       </div>
+
+      <nav class="tabs" role="tablist">
+        <button class="tab-btn active" data-tab="scan" type="button">Scan</button>
+        <button class="tab-btn" data-tab="history" type="button">History</button>
+        <button class="tab-btn" data-tab="ai" type="button">AI &amp; Tools</button>
+      </nav>
     </header>
 
-    <main class="content">
-      <section class="card">
+    <!-- TAB 1: SCAN -->
+    <section id="tab-scan" class="tab-panel active">
+      <div class="card">
         <div class="setting-group">
           <label for="languageSelect" class="label">Recognition Language</label>
           <select id="languageSelect" class="select-input">
-            <option value="vie+eng">Vietnamese + English (Default)</option>
-            <option value="vie">Vietnamese Only</option>
+            <option value="auto">Auto-Detect (Page Language)</option>
             <option value="eng">English Only</option>
+            <option value="vie+eng">Vietnamese + English</option>
+            <option value="vie">Vietnamese Only</option>
             <option value="chi_sim+eng">Chinese (Simplified) + English</option>
             <option value="jpn+eng">Japanese + English</option>
             <option value="kor+eng">Korean + English</option>
@@ -49,15 +57,28 @@
             <option value="tha+eng">Thai + English</option>
           </select>
 
-          <label for="qualitySelect" class="label label-spaced">Scan Mode</label>
-          <select id="qualitySelect" class="select-input">
-            <option value="fast">Fast (Recommended)</option>
-            <option value="best">High Accuracy (~2x slower)</option>
-          </select>
+          <div class="two-col">
+            <div>
+              <label for="qualitySelect" class="label label-spaced">Scan Mode</label>
+              <select id="qualitySelect" class="select-input">
+                <option value="fast">Fast</option>
+                <option value="best">High Accuracy</option>
+              </select>
+            </div>
+            <div>
+              <label for="prepSelect" class="label label-spaced">Preprocessing</label>
+              <select id="prepSelect" class="select-input">
+                <option value="auto">Auto (Smart)</option>
+                <option value="contrast">High Contrast</option>
+                <option value="invert">Invert Dark</option>
+                <option value="standard">Raw Grayscale</option>
+              </select>
+            </div>
+          </div>
 
           <span id="saveStatus" class="save-status">Settings saved</span>
         </div>
-      </section>
+      </div>
 
       <button id="regionBtn" class="primary-btn" type="button">
         <span class="btn-label">
@@ -69,9 +90,14 @@
         </span>
         <kbd>Alt+Shift+O</kbd>
       </button>
+
+      <button id="batchBtn" class="secondary-btn" type="button">
+        <span class="btn-label">Scan All Page Images (Batch)</span>
+        <span class="pill-tag">.MD / .CSV</span>
+      </button>
       <span id="regionStatus" class="region-status"></span>
 
-      <section class="toggles-card">
+      <div class="toggles-card">
         <label class="check-row">
           <input type="checkbox" id="showHoverButton">
           <span>Show "Select Text" button on image hover</span>
@@ -80,23 +106,86 @@
           <input type="checkbox" id="autoCopy">
           <span>Auto-copy extracted text after scan</span>
         </label>
-      </section>
+        <label class="check-row">
+          <input type="checkbox" id="smartFilter">
+          <span>Smart Noise Filter (strip icon &amp; badge artifacts)</span>
+        </label>
+      </div>
 
-      <p class="hint">Languages other than English/Vietnamese are downloaded on first use (requires internet) and cached locally.</p>
+      <p class="hint">English &amp; Vietnamese work offline out of the box. Other languages download once and cache locally.</p>
+    </section>
 
-      <section class="guide-box">
+    <!-- TAB 2: HISTORY -->
+    <section id="tab-history" class="tab-panel">
+      <div class="history-toolbar">
+        <input id="historySearch" class="text-input" type="search" placeholder="Search scan history...">
+        <button id="clearHistoryBtn" class="mini-btn" type="button">Clear</button>
+      </div>
+      <div id="historyList" class="history-list">
+        <div class="empty-state">No scans recorded yet.</div>
+      </div>
+    </section>
+
+    <!-- TAB 3: AI & TOOLS -->
+    <section id="tab-ai" class="tab-panel">
+      <div class="card">
+        <label for="translateTargetSelect" class="label">Instant Translate Target</label>
+        <select id="translateTargetSelect" class="select-input">
+          <option value="en">English</option>
+          <option value="vi">Vietnamese</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="zh-CN">Chinese (Simplified)</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="es">Spanish</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <label for="aiProviderSelect" class="label">Cloud AI Vision Fallback (Optional)</label>
+        <select id="aiProviderSelect" class="select-input">
+          <option value="disabled">Disabled (100% Offline Tesseract)</option>
+          <option value="gemini">Google Gemini Vision</option>
+          <option value="openai">OpenAI / Compatible Vision</option>
+        </select>
+
+        <div id="aiConfigFields" style="display:none;">
+          <label for="aiApiKey" class="label label-spaced">API Key (stored locally)</label>
+          <input id="aiApiKey" class="text-input" type="password" placeholder="Paste API key...">
+
+          <div class="two-col">
+            <div>
+              <label for="aiModel" class="label label-spaced">Model</label>
+              <input id="aiModel" class="text-input" type="text" placeholder="gemini-2.5-flash">
+            </div>
+            <div>
+              <label for="aiEndpoint" class="label label-spaced">Custom Base URL</label>
+              <input id="aiEndpoint" class="text-input" type="text" placeholder="Optional">
+            </div>
+          </div>
+
+          <label class="check-row" style="margin-top:10px;">
+            <input type="checkbox" id="aiAutoFallback">
+            <span>Auto-fallback to AI when local OCR yields 0 words</span>
+          </label>
+        </div>
+
+        <span id="aiSaveStatus" class="save-status">AI settings saved</span>
+      </div>
+
+      <div class="guide-box">
         <h3 class="guide-title">Quick Guide</h3>
         <ul class="guide-list">
-          <li><strong>Hover:</strong> Move over any image and click <code>Select Text</code> at the top-right corner.</li>
-          <li><strong>Right-click:</strong> Right-click an image and choose <code>Select text on this image (OCR)</code>.</li>
-          <li><strong>Region:</strong> Press <code>Alt+Shift+O</code> and drag to capture text from videos, canvas, or backgrounds.</li>
-          <li><strong>Copy:</strong> Highlight text directly on the image and press <code>Ctrl+C</code>, or click <code>Copy All</code>.</li>
+          <li><strong>Toolbar:</strong> Switch language, contrast/invert, Table (Markdown/TSV), Translate, or AI directly above any scanned image.</li>
+          <li><strong>Entities:</strong> Prices, emails, URLs &amp; phones appear as 1-click copy chips.</li>
+          <li><strong>Region:</strong> Press <code>Alt+Shift+O</code> to crop canvases, videos, or UI cards.</li>
         </ul>
-      </section>
-    </main>
+      </div>
+    </section>
 
     <footer class="footer">
-      <span>Offline OCR Engine · Chrome &amp; Edge</span>
+      <span>99% Crimson Edition · Chrome &amp; Edge</span>
     </footer>
   </div>
 
